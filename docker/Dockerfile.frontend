@@ -1,0 +1,21 @@
+# Frontend Dockerfile
+FROM node:18-alpine AS build
+
+WORKDIR /app
+
+# Install dependencies
+COPY frontend/package*.json ./
+RUN npm install
+
+# Build application
+COPY frontend/ .
+RUN npm run build
+
+# Serve application
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package*.json ./
+RUN npm install --only=production
+
+CMD ["npm", "start"]
